@@ -50,7 +50,6 @@ class CryptDataStruct(ctypes.Structure):
 
 _saltchars = string.ascii_letters + string.digits + './'
 _sr = SystemRandom()
-verbose = 0
 
 def parse_args():
     """Parse the command line arguments and return them"""
@@ -164,14 +163,13 @@ def _crypt(word, salt=None):
 
     return result.decode('utf-8') if result else None
 
-def crypt(word, salt, alg):
+def crypt(word, salt, alg, verbose=0):
     result = _crypt(word, salt)
     if verbose > 0:
-        print("algorithm ", alg, "salt: ", salt)
+        print("algorithm:", alg, "salt:", salt)
         print("hashed password: ", result)
     else:
         print(result)
-
 
 def abort(msg):
     print(msg)
@@ -181,14 +179,12 @@ def main():
     """
     Simple script to get a hashed password from text.
     """
-    verbose = 0
-
     if sys.platform == "darwin" or sys.platform == "windows":
         abort(f"Error, OS {sys.platform} is not supported.")
 
+    verbose = 0
     args = parse_args()
-
-    if args.verbose is not False:
+    if args.verbose is True:
         verbose = 1
 
     input_text = args.text.strip()
@@ -221,7 +217,6 @@ def main():
         if len(noargs) > 0 and verbose > 0:
             print("skipping algorithm(s) ", noargs)
 
-
     elif args.salt is None:
         for arg, value in vars(args).items():
             for method in PW_ALGORITHMS:
@@ -238,7 +233,7 @@ def main():
             crypt_jobs[DEFAULT_ALGORITM] = newsalt
 
     for method, salt_str in crypt_jobs.items():
-        crypt(input_text, salt_str, method)
+        crypt(input_text, salt_str, method, verbose)
         if verbose > 0:
             print("-----------------------------------------------")
 
